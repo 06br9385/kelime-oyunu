@@ -1,0 +1,162 @@
+﻿@model IEnumerable<Score>;
+
+
+@{
+    ViewData["Title"] = "Zordur Game";
+}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.2/rollups/aes.js" integrity="sha256-/H4YS+7aYb9kJ5OKhFYPUjSJdrtV6AeyJOtTkw6X72o=" crossorigin="anonymous"></script>
+<script src="~/js/en01.js"></script>
+<script src="~/js/dicen01.js"></script>
+<h1 id="info" style="margin-top:10px;">
+    <div id="container">
+        <div style="margin-top:20px;" id="countdown"></div>
+        <!-- Kelimenin Anlamı/ apiden js den geliyor içeriği -->
+        <div style="margin:10px;" id="ip-ucu" role="alert">
+            <p class="result" style="font-family:'Inter', 'Clear Sans', 'Helvetica Neue', Arial, sans-serif;font-size:medium;color:white;"><i class="fa fa-check-circle"></i></p>
+        </div>
+        <script type="text/javascript" charset="utf-8">
+
+            var countdown = $("#countdown").countdown360({
+                radius: 30,
+                seconds: 60,
+                fontColor: '#FFFFFF',
+                autostart: false,
+                onComplete: function () {
+                    goToByScroll();
+                }
+            });
+            countdown.start();
+
+        </script>
+    </div>
+</h1>
+
+
+<div class="text-center" style=" margin-top:2px;">
+    <table class="listenChange">
+        <tbody id="tbody">
+        </tbody>
+        <partial name="_flags" />
+    </table>
+    <div style="margin-top:20px;">
+        <a style="background-color:grey;" id="new-game" asp-area="" class="btn btn-info btn-sm" asp-controller="Zordur" asp-action="enEN">Play Again</a>
+        <a id="gameKeyId"></a>
+    </div>
+</div>
+<!-- Modal -->
+<div class="modal fade" id="myModal" role="dialog" style="background: #3a3a3c;">
+    <div class="modal-dialog modal-sm" style="background: #3a3a3c;">
+        <div class="modal-content" style="background: #3a3a3c;">
+            <div class="modal-header" style="background: #3a3a3c;">
+                <h4 class="modal-title" style="color:white">
+                    Top Scores
+                </h4>
+            </div>
+            <div class="modal-body" style="background: #3a3a3c;">
+                <table class="table" style="background: #3a3a3c;color:white;">
+                    <tbody>
+                        <tr>
+                            <td style="font-size:1.5em;font-family: 'Inter', 'Clear Sans', 'Helvetica Neue', Arial, sans-serif;">Order</td>
+                            <td style="font-size:1.5em;font-family: 'Inter', 'Clear Sans', 'Helvetica Neue', Arial, sans-serif;">Date</td>
+                            <td style="font-size:1.5em;font-family: 'Inter', 'Clear Sans', 'Helvetica Neue', Arial, sans-serif;">Duration</td>
+                        </tr>
+                        </tr>
+                        @{
+                            int i = 0;
+                        }
+                        @if (Model != null)
+                        {
+                            foreach (var item in Model)
+                            {
+                                i++;
+                                <tr>
+                                    <td style="font-size:1em;font-family: 'Inter', 'Clear Sans', 'Helvetica Neue', Arial, sans-serif;">
+                                        @i
+                                    </td>
+                                    <td style="font-size:1em;font-family: 'Inter', 'Clear Sans', 'Helvetica Neue', Arial, sans-serif;">
+                                        @item.scoreDate
+                                    </td>
+                                    <td style="font-size:1em;font-family: 'Inter', 'Clear Sans', 'Helvetica Neue', Arial, sans-serif;">
+                                        @item.second
+                                    </td>
+                                </tr>
+                            }
+                            <tr>
+                                <td colspan="2" style="font-size:1em;font-family: 'Inter', 'Clear Sans', 'Helvetica Neue', Arial, sans-serif;">
+                                    <b disabled>Total Number of Games: </b>
+                                </td>
+                                <td style="font-size:1em;font-family: 'Inter', 'Clear Sans', 'Helvetica Neue', Arial, sans-serif;">
+                                    <b>@ViewBag.PageHitCount</b>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td colspan="2" style="font-size:1em;font-family: 'Inter', 'Clear Sans', 'Helvetica Neue', Arial, sans-serif;">
+                                    <b disabled>Total Correct Guessing: </b>
+                                </td>
+                                <td style="font-size:1em;font-family: 'Inter', 'Clear Sans', 'Helvetica Neue', Arial, sans-serif;">
+                                    <b>@ViewBag.Count</b>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td colspan="2" style="font-size:1em;font-family: 'Inter', 'Clear Sans', 'Helvetica Neue', Arial, sans-serif;">
+                                    <b disabled">Total Wrong Guess:</b>
+                                </td>
+                                <td style="font-size:1em;font-family: 'Inter', 'Clear Sans', 'Helvetica Neue', Arial, sans-serif;">
+                                    <b>@ViewBag.GameOverCount</b>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="modal-footer">
+                <button style="margin:20px;background-color:grey;" type="button" class="btn btn-info btn-sm" data-dismiss="modal">Exit</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="myModal2" role="dialog" style="background: #3a3a3c;">
+    <div class="modal-dialog modal-lg" style="background: #3a3a3c;">
+        <div class="modal-content" style="background: #3a3a3c;">
+            <div class="modal-header" style="background: #3a3a3c;">
+                <h4 class="modal-title" style="color:white">
+                    HOW TO PLAY
+                </h4>
+            </div>
+            <div class="modal-body" style="background: #3a3a3c;color:white;">
+                <p>find the word as soon as 5 tries.</p>
+                <p>
+                    Tap the square for the keyboard. Each guess must be a 5-letter correct or incorrect word. There is no need to enter the estimate, it is automatically compared at the end of the field.
+                </p>
+                <p>
+                    After each guess, the colors of the boxes will change according to the closeness of your guess. You can't Backspace. Your goal is to guess the word in the fastest time.
+                </p>
+                <hr />
+                <b>For Example</b>
+                <ul>
+                    <li>
+                        <img src="~/images/456.png" />
+                        <p>
+                            The letter R is in the word and in the right place.
+                        </p>
+                    </li>
+                    <li>
+                        <img src="~/images/123.png" />
+                        <p>
+                            The letter L is in the word, but in the wrong place.
+                        </p>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="modal-footer">
+                <button style="margin:20px;background-color:grey;" type="button" class="btn btn-info btn-sm" data-dismiss="modal">Exit</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
